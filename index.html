@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Racing Game</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: #f0f0f0;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #000;
+        }
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="score">Score: 0</div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        // Set up the canvas and game variables
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let score = 0;
+        const carWidth = 50;
+        const carHeight = 100;
+        let carX = canvas.width / 2 - carWidth / 2;
+        let carY = canvas.height - carHeight - 20;
+        let carSpeed = 5;
+
+        let leftPressed = false;
+        let rightPressed = false;
+
+        let obstacles = [];
+        let obstacleSpeed = 3;
+
+        // Event listeners for controls
+        window.addEventListener("keydown", keyDownHandler, false);
+        window.addEventListener("keyup", keyUpHandler, false);
+
+        function keyDownHandler(e) {
+            if (e.key == "Right" || e.key == "ArrowRight") {
+                rightPressed = true;
+            } else if (e.key == "Left" || e.key == "ArrowLeft") {
+                leftPressed = true;
+            }
+        }
+
+        function keyUpHandler(e) {
+            if (e.key == "Right" || e.key == "ArrowRight") {
+                rightPressed = false;
+            } else if (e.key == "Left" || e.key == "ArrowLeft") {
+                leftPressed = false;
+            }
+        }
+
+        function drawCar() {
+            ctx.beginPath();
+            ctx.rect(carX, carY, carWidth, carHeight);
+            ctx.fillStyle = "#00f";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawObstacles() {
+            for (let i = 0; i < obstacles.length; i++) {
+                ctx.beginPath();
+                ctx.rect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+                ctx.fillStyle = "#f00";
+                ctx.fill();
+                ctx.closePath();
+                obstacles[i].y += obstacleSpeed;
+                if (obstacles[i].y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    score++;
+                    document.getElementById("score").innerText = "Score: " + score;
+                    i--;
+                }
+            }
+        }
+
+        function generateObstacles() {
+            if (Math.random() < 0.03) {
+                let width = Math.random() * (canvas.width / 2) + 50;
+                let x = Math.random() * (canvas.width - width);
+                obstacles.push({ x: x, y: -100, width: width, height: 20 });
+            }
+        }
+
+        function collisionDetection() {
+            for (let i = 0; i < obstacles.length; i++) {
+                if (carX < obstacles[i].x + obstacles
